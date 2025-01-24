@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CONVIERTE</title>
+  <style>
+    body { 
+      font-family: Arial, sans-serif; 
+      padding: 20px; 
+      background-color: #000000; 
+      color: white;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    h1 { 
+      color: #0E7F75; 
+      text-align: center; 
+    }
+
+    h3 { 
+      color: white; 
+    }
+
+    input, button { 
+      margin-top: 10px; 
+      padding: 10px; 
+      font-size: 16px; 
+      border-radius: 5px; 
+      border: 1px solid #0E7F75;
+      background-color: transparent;
+      color: #0E7F75;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0E7F75;
+      color: white;
+    }
+
+    .result { 
+      margin-top: 20px; 
+      font-size: 18px; 
+      font-weight: bold; 
+    }
+
+    .discos { 
+      margin-top: 20px; 
+    }
+
+    .disco { 
+      margin: 5px; 
+      display: inline-block; 
+      padding: 5px 10px; 
+      background-color: #0E7F75; 
+      color: white; 
+      border-radius: 5px; 
+    }
+
+    label {
+      color: white;
+    }
+
+    /* Estilos para los inputs con flechas */
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+      opacity: 0.5; /* Hacer las flechas más sutiles */
+    }
+
+    input[type="number"] {
+      transition: opacity 0.3s ease; /* Añadir transición suave para cuando cambie el foco */
+    }
+
+    input[type="number"]:focus {
+      opacity: 1; /* Hacer que las flechas se vean con más opacidad cuando el input tenga foco */
+    }
+
+  </style>
+</head>
+<body>
+
+  <h1>CONVIERTE</h1>
+
+  <div>
+    <h3>Convertir Libras a Kilos</h3>
+    <input type="number" id="libras" placeholder="Ingrese libras" oninput="aplicarTransicion(this)" />
+    <button onclick="convertirLibrasAKilos()">Convertir a Kilos</button>
+    <p id="resultadoKilos"></p>
+  </div>
+
+  <div>
+    <h3>Convertir Kilos a Libras</h3>
+    <input type="number" id="kilos" placeholder="Ingrese kilos" oninput="aplicarTransicion(this)" />
+    <button onclick="convertirKilosALibras()">Convertir a Libras</button>
+    <p id="resultadoLibras"></p>
+  </div>
+
+  <div>
+    <h3>Calcular Discos para Barra</h3>
+    <label><input type="radio" name="tipoBarra" value="35" checked> Barra de 35 libras (Mujer)</label><br>
+    <label><input type="radio" name="tipoBarra" value="45"> Barra de 45 libras (Hombre)</label><br>
+    
+    <input type="number" id="pesoAdicional" placeholder="Ingresar peso total" oninput="aplicarTransicion(this)" />
+    <button onclick="calcularDiscos()">Calcular Discos</button>
+
+    <div id="resultadoDiscos" class="discos"></div>
+  </div>
+
+  <script>
+    // Función para aplicar transición suave a los inputs
+    function aplicarTransicion(inputElement) {
+      inputElement.style.transition = 'opacity 0.3s ease';
+    }
+
+    // Conversion de Libras a Kilos
+    function convertirLibrasAKilos() {
+      const libras = parseFloat(document.getElementById("libras").value);
+      const kilos = libras / 2.20462;
+      document.getElementById("resultadoKilos").innerText = kilos.toFixed(2) + " kg";
+    }
+
+    // Conversion de Kilos a Libras
+    function convertirKilosALibras() {
+      const kilos = parseFloat(document.getElementById("kilos").value);
+      const libras = kilos * 2.20462;
+      document.getElementById("resultadoLibras").innerText = libras.toFixed(2) + " lbs";
+    }
+
+    // Discos disponibles (en libras)
+    const discosDisponibles = [
+      { nombre: "2.5 lb", peso: 2.5 },
+      { nombre: "5 lb", peso: 5 },
+      { nombre: "10 lb", peso: 10 },
+      { nombre: "15 lb", peso: 15 },
+      { nombre: "25 lb", peso: 25 },
+      { nombre: "35 lb", peso: 35 },
+      { nombre: "45 lb", peso: 45 },
+    ];
+
+    // Calcular discos para la barra
+    function calcularDiscos() {
+      const tipoBarra = document.querySelector('input[name="tipoBarra"]:checked').value;
+      const pesoAdicional = parseFloat(document.getElementById("pesoAdicional").value);
+      
+      // Validar que se haya ingresado un peso adicional válido
+      if (isNaN(pesoAdicional) || pesoAdicional <= 0) {
+        document.getElementById("resultadoDiscos").innerText = "Por favor ingrese un peso adicional válido.";
+        return;
+      }
+
+      let pesoBarraBase = (tipoBarra === "35") ? 35 : 45;  // 35 lb para mujeres, 45 lb para hombres
+      let pesoRestante = pesoAdicional - pesoBarraBase;     // Restamos el peso de la barra del peso adicional
+      if (pesoRestante <= 0) {
+        document.getElementById("resultadoDiscos").innerText = "El peso adicional es menor o igual al peso de la barra. No se necesitan discos.";
+        return;
+      }
+
+      let pesoPorLado = pesoRestante / 2;   // El peso se distribuye entre 2 lados
+
+      let discosSeleccionados = [];
+
+      // Calcular los discos necesarios para alcanzar el peso por lado
+      for (let i = discosDisponibles.length - 1; i >= 0; i--) {
+        while (pesoPorLado >= discosDisponibles[i].peso) {
+          discosSeleccionados.push(discosDisponibles[i].nombre);
+          pesoPorLado -= discosDisponibles[i].peso;
+        }
+      }
+
+      // Mostrar los discos seleccionados
+      const resultadoDiv = document.getElementById("resultadoDiscos");
+      if (discosSeleccionados.length === 0) {
+        resultadoDiv.innerText = "No se necesitan discos adicionales.";
+      } else {
+        resultadoDiv.innerHTML = "Discos por lado: " + discosSeleccionados.join(", ");
+      }
+    }
+  </script>
+
+</body>
+</html>
